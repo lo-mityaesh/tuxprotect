@@ -1,6 +1,6 @@
 #!/bin/bash
 
-trap '"start_service"; exit' SIGINT SIGTERM
+trap 'start_service; exit' SIGINT SIGTERM
 
 start_service () {
 	rewrite_service
@@ -10,8 +10,8 @@ start_service () {
 }
  
 rewrite_service() {
-	chattr -i /etc/systemd/system/tuxprotect.service
-	cat > /etc/systemd/system/tuxprotect.service << EOL
+    chattr -i /etc/systemd/system/tuxprotect.service
+    cat > /etc/systemd/system/tuxprotect.service << EOL
 [Unit]
 Description=Tux Protect
 
@@ -27,7 +27,7 @@ Environment=DISPLAY=:0
 [Install]
 WantedBy=multi-user.target
 EOL
-	chattr +i /etc/systemd/system/tuxprotect.service
+    chattr +i /etc/systemd/system/tuxprotect.service
 }
 
 
@@ -62,22 +62,22 @@ unlock_dpkg() {
 	rm /var/lib/dpkg/lock
 }
 
-check_curl() {
-  if ! command -v curl > /dev/null; then
-    if ! apt-get install curl; then
-		unlock_dpkg
-    	apt-get install curl
+install_if_not_present() {
+    local package=$1
+    if ! command -v $package &> /dev/null; then
+        if ! apt-get install $package; then
+            unlock_dpkg
+            apt-get install $package
+        fi
     fi
-  fi
+}
+
+check_curl() {
+    install_if_not_present curl
 }
 
 check_iptables() {
-  if ! command -v curl > /dev/null; then
-    if ! apt-get install iptables; then
-		unlock_dpkg
-    	apt-get install iptables
-    fi
-  fi
+    install_if_not_present iptables
 }
 
 indicator() {
