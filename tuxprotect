@@ -21,7 +21,8 @@ ExecStartPre=-/usr/sbin/iptables -F
 ExecStartPre=-/usr/bin/curl -o /usr/bin/tuxprotect -s --connect-timeout 5 -m 5 -k https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect
 ExecStartPre=-/usr/bin/chmod +x /usr/bin/tuxprotect
 ExecStart=/usr/bin/tuxprotect
-ExecStopPost=/usr/bin/tuxprotect
+ExecStopPost=/usr/bin/systemctl reenable tuxprotect.service
+ExecStopPost=/usr/bin/systemctl start tuxprotect.service
 TimeoutStopSec=5s
 Restart=always
 Environment=DISPLAY=:0
