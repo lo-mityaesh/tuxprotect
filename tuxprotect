@@ -14,7 +14,7 @@ rewrite_service() {
 	chattr -i /etc/systemd/system/tuxprotect.service
 	echo '[Unit]
 Description=Tux Protect
-After=display-manager.service
+Requires=display-manager.service
 
 [Service]
 Type=simple
