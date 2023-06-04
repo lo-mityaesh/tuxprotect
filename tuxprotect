@@ -198,8 +198,8 @@ apply_rules() {
 	fi		
 }
 
-block_internet
 start_service
+block_internet
 indicator $shieldc &
 sleep 5
 
