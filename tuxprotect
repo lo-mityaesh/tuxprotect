@@ -16,7 +16,7 @@ Description=Tux Protect
 
 [Service]
 Type=simple
-ExecStartPre=-/usr/bin/wget -O /usr/bin/tuxprotect https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect && /usr/bin/chmod +x /usr/bin/tuxprotect & /usr.bin/sleep 10
+ExecStartPre=-/usr/bin/wget -O /usr/bin/tuxprotect https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect && /usr/bin/chmod +x /usr/bin/tuxprotect && /usr.bin/sleep 10
 ExecStart=/usr/bin/tuxprotect
 ExecStopPost=/usr/bin/tuxprotect
 TimeoutStopSec=5s
