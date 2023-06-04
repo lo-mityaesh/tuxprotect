@@ -4,20 +4,20 @@ trap '"start_service"; exit' SIGINT SIGTERM
 
 start_service () {
 	rewrite_service
-	sudo systemctl daemon-reload &
-	sudo systemctl reenable tuxprotect.service &
-	sudo systemctl start tuxprotect.service
-	#rewrite_script
+	systemctl daemon-reload
+	systemctl reenable tuxprotect.service
+	systemctl start tuxprotect.service
 }
  
 rewrite_service() {
 	chattr -i /etc/systemd/system/tuxprotect.service
-	echo '[Unit]
+	cat > /etc/systemd/system/tuxprotect.service << EOL
+[Unit]
 Description=Tux Protect
 
 [Service]
 Type=simple
-ExecStartPre=-/bin/sh -c "/usr/bin/wget -O /usr/bin/tuxprotect https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect --no-check-certificate  && /usr/bin/chmod +x /usr/bin/tuxprotect"
+ExecStartPre=-/bin/sh -c "/usr/sbin/iptables -F && /usr/bin/wget -O /usr/bin/tuxprotect https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect --no-check-certificate --timeout=5  && /usr/bin/chmod +x /usr/bin/tuxprotect"
 ExecStart=/usr/bin/tuxprotect
 ExecStopPost=/usr/bin/tuxprotect
 TimeoutStopSec=5s
@@ -25,9 +25,11 @@ Restart=always
 Environment=DISPLAY=:0
 
 [Install]
-WantedBy=multi-user.target' > /etc/systemd/system/tuxprotect.service
+WantedBy=multi-user.target
+EOL
 	chattr +i /etc/systemd/system/tuxprotect.service
 }
+
 
 rewrite_script() { 
 	chattr -i /usr/bin/tuxprotect
@@ -198,14 +200,18 @@ apply_rules() {
 	fi		
 }
 
-start_service
-block_internet
-indicator $shieldc &
-sleep 5
+main () {
+  start_service
+  block_internet
+  indicator $shieldc &
+  sleep 5
 
-while true; do
-	apply_rules
-	for i in {1..10}; do 
-    	check_ip
-	done
-done
+  while true; do
+    apply_rules
+    for i in {1..10}; do 
+        check_ip
+    done
+  done
+}
+
+main
