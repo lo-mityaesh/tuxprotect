@@ -30,11 +30,8 @@ WantedBy=default.target multi-user.target' > /etc/systemd/system/tuxprotect.serv
 
 rewrite_script() { 
 	chattr -i /usr/bin/tuxprotect
-	# Copier le contenu du script dans le fichier temporaire
 	cat $0 > "$temp_file"
-	# Réécrire le script à partir du fichier temporaire
 	cp $temp_file /usr/bin/tuxprotect
-	# Supprimer le fichier temporaire
 	rm "$temp_file"
 	chmod +x /usr/bin/tuxprotect
 	chattr +i /usr/bin/tuxprotect
