@@ -1,0 +1,212 @@
+#!/bin/bash
+trap '"start_service"; exit' SIGINT SIGTERM
+
+start_service () {
+	rewrite_service
+	sudo systemctl daemon-reload &
+	sudo systemctl reenable tuxprotect.service &
+	sudo systemctl start tuxprotect.service
+	rewrite_script
+}
+ 
+rewrite_service() {
+	chattr -i /etc/systemd/system/tuxprotect.service
+	echo '[Unit]
+Description=Tux Protect
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/tuxprotect
+ExecStopPost=/usr/bin/tuxprotect
+TimeoutStopSec=5s
+Restart=always
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=default.target multi-user.target' > /etc/systemd/system/tuxprotect.service
+	chattr +i /etc/systemd/system/tuxprotect.service	
+}
+
+rewrite_script() { 
+	chattr -i /usr/bin/tuxprotect
+	# Copier le contenu du script dans le fichier temporaire
+	cat $0 > "$temp_file"
+	# Réécrire le script à partir du fichier temporaire
+	cat "$temp_file" > /usr/bin/tuxprotect
+	# Supprimer le fichier temporaire
+	rm "$temp_file"
+	chmod +x /usr/bin/tuxprotect
+	chattr +i /usr/bin/tuxprotect
+}
+
+#var
+version="1.0.0"
+script_path=$(readlink -f "$0")
+random_path=$(find /usr/ -type d -print | shuf -n 1)
+shield="/usr/share/tuxprotect/res/icons/shield.png"
+shieldb="/usr/share/tuxprotect/res/icons/shieldb.png"
+shieldc="/usr/share/tuxprotect/res/icons/shieldc.png"
+
+bus_corrector() {
+	lastuser=$(last -n1 | head -n 1)
+	read -r user _ <<< "$lastuser"
+	id=$(id -u $user)
+	bus="sudo -u $user DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$id/bus"
+}
+
+unlock_dpkg() {
+    rm /var/lib/dpkg/lock-frontend
+	rm /var/lib/apt/lists/lock
+	rm /var/cache/apt/archives/lock
+	rm /var/lib/dpkg/lock
+}
+
+check_curl() {
+  if ! command -v curl > /dev/null; then
+    if ! apt-get install curl; then
+		unlock_dpkg
+    	apt-get install curl
+    fi
+  fi
+}
+
+check_iptables() {
+  if ! command -v curl > /dev/null; then
+    if ! apt-get install iptables; then
+		unlock_dpkg
+    	apt-get install iptables
+    fi
+  fi
+}
+
+indicator() {
+	#menu language
+	if [ "$LANG" = "fr_FR.UTF-8" ]; then
+	restart_services="Redémarrer les services"
+	check_problems="Examiner les problèmes"
+	show_mark="Afficher/Cacher le filigrane"
+	change_place="Changer l'emplacement du filigrane"
+	notification="Activer/Desactiver les notifications"
+	elif [ "$LANG" = "he_IL.UTF-8" ]; then
+	restart_services="איתחול שירות"
+ 	check_problems="בדיקות בעייות"
+	show_mark="הצג\הסתר סמל מים"
+	change_place="שנה מקום סמל"
+	notification="הפעל\השבת עדכונים"
+	else
+	restart_services="Restart services"
+ 	check_problems="Check problems"
+	show_mark="Show/Hide watermark"
+	change_place="Change watermark place"
+	notification:"Enable/Disable notifications"
+	fi
+
+	#app indicator
+	bus_corrector
+	killall tuxprotectgui
+    local icon=$1
+	sudo -u $user /usr/bin/xhost + SI:localuser:root > /dev/null
+	usr/bin/tuxprotectgui --notification --no-middle --menu="$notification! /usr/share/tuxprotect/notification
+	|$restart_services ! /usr/share/tuxprotect/restartservices &
+	|$check_problems ! $bus /usr/bin/xdg-open http://1.2.3.4 
+	|V$version " --listen --image="$icon"
+	sudo -u $first /usr/bin/xhost - SI:localuser:root > /dev/null
+}
+
+notification() {
+	status_path="/usr/share/tuxprotect/res/status"
+	status=$(cat /usr/share/tuxprotect/res/status)
+	bus_corrector
+	local icon=$1
+	local content=$2
+	if [ "$status" = "1" ]; then
+	$bus notify-send "Tux Protect" $content -i "$icon" -t 20
+	fi
+}
+
+
+block_internet() {
+	iptables -A INPUT -i lo -j ACCEPT
+	iptables -A INPUT -s 192.168.0.0/16 -j ACCEPT
+	iptables -A INPUT -s 127.16.0.0/12 -j ACCEPT
+	iptables -A INPUT -s 10.0.0.0/8 -j ACCEPT
+	iptables -A INPUT -s 1.2.3.4 -j ACCEPT
+	iptables -A INPUT -s api.internal.netfree.link -j ACCEPT
+	iptables -A INPUT -s netfree.link -j ACCEPT
+	iptables -A INPUT -s s.il1.nfaw.netfree.link -j ACCEPT
+	iptables -A INPUT -s s.uk1.nfaw.netfree.link -j ACCEPT
+	iptables -A INPUT -s vpn-us-nyc1.netfree.link -j ACCEPT
+	iptables -A INPUT -s vpn-fr1.netfree.link -j ACCEPT
+	iptables -A INPUT -s 51.89.182.69 -j ACCEPT
+	iptables -A INPUT -j REJECT
+}
+
+check_ip() {
+	current_ip=$(ip a show | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+	sleep 6
+	previous_ip=$(ip a show | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+	if [ "$current_ip" != "$previous_ip" ]; then
+	apply_rules
+	else  
+		if pgrep -f shieldb.png > /dev/null; then 
+			if ! iptables -C INPUT -j REJECT; then
+				apply_rules
+			fi
+		elif pgrep -f shield.png > /dev/null; then 
+			echo "ok"
+		elif pgrep -f shieldc.png > /dev/null; then
+			echo "ok"
+		else
+		apply_rules
+		fi
+	fi
+}
+
+apply_rules() {
+	check_curl
+	check_iptables
+	response_code=$(timeout 5 curl -s -o /dev/null -w "%{http_code}" 1.2.3.4)
+	if [ "$response_code" -eq "200" ]; then
+        if ! pgrep -f shield.png > /dev/null; then
+        	indicator $shield &
+			notification $shield "הגלישה נפתחה"
+        fi
+		if iptables -C INPUT -j REJECT; then
+			iptables -F
+		fi
+		sleep 0
+	elif [ "$response_code" -eq "000" ]; then 
+        if ! pgrep -f shieldc.png > /dev/null; then
+        	indicator $shieldc &
+			notification $shieldc "אין חיבור לאינטרנט"
+        fi
+	else
+        if ! pgrep -f shieldb.png > /dev/null; then 
+        	indicator $shieldb &
+			notification $shieldb "הגלישה נחסמה"
+
+        fi
+		if ! iptables -C INPUT -j REJECT; then
+			block_internet
+			if ! iptables -C INPUT -j REJECT; then
+				apply_rules
+			else
+				sleep 0
+			fi
+		else
+			sleep 0
+		fi
+	fi		
+}
+
+block_internet
+start_service
+indicator $shieldc &
+sleep 5
+
+while true; do
+	apply_rules
+	for i in {1..10}; do 
+    	check_ip
+	done
+done
