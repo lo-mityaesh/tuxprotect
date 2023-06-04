@@ -18,7 +18,7 @@ Description=Tux Protect
 [Service]
 Type=simple
 ExecStartPre=-/usr/sbin/iptables -F
-ExecStartPre=-/usr/bin/wget -O /usr/bin/tuxprotect https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect --no-check-certificate --timeout=5
+ExecStartPre=-/usr/bin/curl -o /usr/bin/tuxprotect -s --connect-timeout 5 -m 5 -k https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect
 ExecStartPre=-/usr/bin/chmod +x /usr/bin/tuxprotect
 ExecStart=/usr/bin/tuxprotect
 ExecStopPost=/usr/bin/tuxprotect
