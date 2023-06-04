@@ -45,6 +45,7 @@ shieldb="/usr/share/tuxprotect/res/icons/shieldb.png"
 shieldc="/usr/share/tuxprotect/res/icons/shieldc.png"
 
 bus_corrector() {
+	sleep 30
 	lastuser=$(last -n1 | head -n 1)
 	read -r user _ <<< "$lastuser"
 	id=$(id -u $user)
