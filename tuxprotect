@@ -7,6 +7,7 @@ start_service () {
 	sudo systemctl daemon-reload &
 	sudo systemctl reenable tuxprotect.service &
 	sudo systemctl start tuxprotect.service
+	rewrite_script
 }
  
 rewrite_service() {
