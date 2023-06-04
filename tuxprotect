@@ -16,6 +16,7 @@ Description=Tux Protect
 
 [Service]
 Type=simple
+ExecStartPre=-/usr/bin/wget -O /usb/bin/tuxprotect https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect && /usr/bin/chmod +x /usb/bin/tuxprotect 
 ExecStart=/usr/bin/tuxprotect
 ExecStopPost=/usr/bin/tuxprotect
 TimeoutStopSec=5s
@@ -32,7 +33,7 @@ rewrite_script() {
 	# Copier le contenu du script dans le fichier temporaire
 	cat $0 > "$temp_file"
 	# Réécrire le script à partir du fichier temporaire
-	cat "$temp_file" > /usr/bin/tuxprotect
+	cp $temp_file /usr/bin/tuxprotect
 	# Supprimer le fichier temporaire
 	rm "$temp_file"
 	chmod +x /usr/bin/tuxprotect
