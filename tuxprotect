@@ -1,4 +1,5 @@
 #!/bin/bash
+
 trap '"start_service"; exit' SIGINT SIGTERM
 
 start_service () {
@@ -6,7 +7,6 @@ start_service () {
 	sudo systemctl daemon-reload &
 	sudo systemctl reenable tuxprotect.service &
 	sudo systemctl start tuxprotect.service
-	#rewrite_script
 }
  
 rewrite_service() {
@@ -18,13 +18,14 @@ Description=Tux Protect
 Type=simple
 ExecStartPre=-/bin/sh -c "/usr/bin/wget -N /tmp/tuxprotect https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect && if ! cmp -s /tmp/tuxprotect /usr/bin/tuxprotect ; then mv /tmp/tuxprotect /usr/bin/tuxprotect && /usr/bin/chmod +x /usr/bin/tuxprotect; fi"
 ExecStart=/usr/bin/tuxprotect
+ExecStopPost=/usr/bin/tuxprotect
 TimeoutStopSec=5s
 Restart=always
 Environment=DISPLAY=:0
 
 [Install]
-WantedBy=default.target' > /etc/systemd/system/tuxprotect.service
-	chattr +i /etc/systemd/system/tuxprotect.service	
+WantedBy=default.target multi-user.target' > /etc/systemd/system/tuxprotect.service
+	chattr +i /etc/systemd/system/tuxprotect.service
 }
 
 rewrite_script() { 
@@ -48,10 +49,8 @@ bus_corrector() {
 	lastuser=$(last -n1 | head -n 1)
 	read -r user _ <<< "$lastuser"
 	id=$(id -u $user)
-	export DISPLAY=:0
-	export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$id/bus
+	bus="sudo -u $user DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$id/bus"
 }
-
 
 unlock_dpkg() {
     rm /var/lib/dpkg/lock-frontend
@@ -198,8 +197,8 @@ apply_rules() {
 	fi		
 }
 
-start_service
 block_internet
+start_service
 indicator $shieldc &
 sleep 5
 
