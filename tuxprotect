@@ -14,11 +14,10 @@ rewrite_service() {
 	chattr -i /etc/systemd/system/tuxprotect.service
 	echo '[Unit]
 Description=Tux Protect
-After=network.target
 
 [Service]
 Type=simple
-ExecStartPre=-/bin/sh -c "/usr/bin/wget -O /usr/bin/tuxprotect https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect && /usr/bin/chmod +x /usr/bin/tuxprotect"
+ExecStartPre=-/bin/sh -c "/usr/bin/wget -O /usr/bin/tuxprotect https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect --no-check-certificate  && /usr/bin/chmod +x /usr/bin/tuxprotect"
 ExecStart=/usr/bin/tuxprotect
 TimeoutStopSec=5s
 Restart=always
