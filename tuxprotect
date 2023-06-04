@@ -25,7 +25,7 @@ Restart=always
 Environment=DISPLAY=:0
 
 [Install]
-WantedBy=default.target' > /etc/systemd/system/tuxprotect.service
+WantedBy=default.target multi-user.target' > /etc/systemd/system/tuxprotect.service
 	chattr +i /etc/systemd/system/tuxprotect.service
 }
 
