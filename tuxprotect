@@ -75,14 +75,6 @@ install_if_not_present() {
     fi
 }
 
-check_curl() {
-    install_if_not_present curl
-}
-
-check_iptables() {
-    install_if_not_present iptables
-}
-
 indicator() {
 	#menu language
 	if [ "$LANG" = "fr_FR.UTF-8" ]; then
@@ -167,10 +159,12 @@ check_ip() {
 }
 
 apply_rules() {
-	check_curl
-	check_iptables
+	install_if_not_present curl
+	install_if_not_present iptables
+	install_if_not_present openssl
 	response_code=$(timeout 5 curl -s -o /dev/null -w "%{http_code}" 1.2.3.4)
-	if [ "$response_code" -eq "200" ]; then
+	issuer=$(timeout 5s sh -c 'echo | openssl s_client -connect www.example.com:443 2>/dev/null | openssl x509 -noout -issuer | awk -F "=" "/O =/ {print \$NF}"')
+	if [[ $issuer =~ "NetFree" ]]; then
         if ! pgrep -f shield.png > /dev/null; then
         	indicator $shield &
 			notification $shield "הגלישה נפתחה"
