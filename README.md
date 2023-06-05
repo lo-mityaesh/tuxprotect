@@ -1,6 +1,6 @@
 # Tux Protect - Unofficial Wifree for Linux Ubuntu
 
-![Logo](./res/icons/logo.png)
+![Logo](./res/icons/logo.jpg)
 
 #Features
 
