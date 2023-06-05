@@ -11,7 +11,7 @@ The program allows local connections at all times, so you can still communicate 
 ### Simple and Lightweight: 
 TuxProtect is designed to be easy to use and lightweight, minimizing system resource usage while providing robust protection. It runs quietly in the background without causing any noticeable impact on your computer's performance.
 ### Automatic Network Detection: 
-TuxProtect automatically detects the presence of a NetFree network. Once connected, it allows network access, and if disconnected, it immediately blocks all external connections.
+TuxProtect automatically detects the presence of a Netfree network. Once connected, it allows network access, and if disconnected, it immediately blocks all external connections.
 
 ## Installation
 
