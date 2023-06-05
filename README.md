@@ -1,7 +1,5 @@
 # Tux Protect - Unofficial Wifree for Linux Ubuntu
 
-![Logo](./res/icons/logo.jpg)
-
 <p align="center">
   <img src="./res/icons/logo.jpg" alt="Logo">
 </p>
