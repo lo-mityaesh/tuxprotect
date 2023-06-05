@@ -5,7 +5,7 @@
 ## Features
 
 ### Network Connection Blocking: 
-TuxProtect restricts all external network connections when your computer is not connected to a NetFree network. .
+TuxProtect restricts all external network connections when your computer is not connected to a Netfree network.
 ### Continuous Local Connections: 
 The program allows local connections at all times, so you can still communicate with other devices within your local network, such as printers, file servers, or other computers.
 ### Simple and Lightweight: 
