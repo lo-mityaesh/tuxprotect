@@ -1,8 +1,11 @@
 # Tux Protect - Unofficial Wifree for Linux Ubuntu
 
-<p align="center">
 ![Logo](./res/icons/logo.jpg)
+
+<p align="center">
+  <img src="./res/icons/logo.jpg" alt="Logo">
 </p>
+
 ## Features
 
 ### Network Connection Blocking: 
