@@ -164,9 +164,11 @@ apply_rules() {
 	install_if_not_present curl
 	install_if_not_present iptables
 	install_if_not_present openssl
+	install_if_not_present jq
 	response_code=$(timeout 5 curl -s -o /dev/null -w "%{http_code}" 1.2.3.4)
 	issuer=$(timeout 5 sh -c 'echo | openssl s_client -connect example.com:443 2>/dev/null | openssl x509 -noout -issuer | awk -F "=" "/O =/ {print \$NF}"')
-	if [[ $issuer =~ "NetFree" ]]; then
+	isNetFree=$(timeout 5 curl -s "https://api.internal.netfree.link/user/0" | jq -r '.isNetFree')
+	if [[ $issuer =~ "NetFree" && $isNetFree == "true" ]]; then
         if ! pgrep -f shield.png > /dev/null; then
         	indicator $shield &
 			notification $shield "הגלישה נפתחה"
