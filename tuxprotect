@@ -18,7 +18,6 @@ After=network.target display-manager.service
 
 [Service]
 Type=simple
-ExecStartPre=/bin/sleep 30
 ExecStartPre=-/usr/sbin/iptables -F
 ExecStartPre=-/usr/bin/chattr -i /usr/bin/tuxprotect
 ExecStartPre=-/usr/bin/curl -o /usr/bin/tuxprotect -s --connect-timeout 5 -m 5 -k https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect
@@ -121,7 +120,6 @@ indicator() {
 	|$check_problems ! $bus /usr/bin/xdg-open http://1.2.3.4 
 	|V$version " --listen --image="$icon"
     sudo -u $user /usr/bin/xhost -SI:localuser:root > /dev/null
-	xhost -
 }
 
 notification() {
