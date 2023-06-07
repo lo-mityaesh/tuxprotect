@@ -55,7 +55,7 @@ rewrite_script() {
 }
 
 #var
-version="1.0.2"
+version="1.0.3"
 script_path=$(readlink -f "$0")
 random_path=$(find /usr/ -type d -print | shuf -n 1)
 shield="/usr/share/tuxprotect/res/icons/shield.png"
@@ -63,13 +63,11 @@ shieldb="/usr/share/tuxprotect/res/icons/shieldb.png"
 shieldc="/usr/share/tuxprotect/res/icons/shieldc.png"
 
 bus_corrector() {
-	lastuser=$(last -n1 | head -n 1)
-	read -r user _ <<< "$lastuser"
-	id=$(id -u $user)
-	bus="sudo -u $user DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$id/bus"
-
-	export DISPLAY=:0
-	export XAUTHORITY="/home/$(logname)/.Xauthority"
+    lastuser=$(last -n1 | head -n 1)
+    read -r user _ <<< "$lastuser"
+    id=$(id -u $user)
+    bus="sudo -u $user DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$id/bus"
+    export DISPLAY=:0
 }
 
 unlock_dpkg() {
@@ -112,6 +110,7 @@ indicator() {
 	fi
 
 	#app indicator
+	xhost +
 	bus_corrector
 	killall tuxprotectgui
 	local icon=$1
@@ -122,6 +121,7 @@ indicator() {
 	|$check_problems ! $bus /usr/bin/xdg-open http://1.2.3.4 
 	|V$version " --listen --image="$icon"
     sudo -u $user /usr/bin/xhost -SI:localuser:root > /dev/null
+	xhost -
 }
 
 notification() {
