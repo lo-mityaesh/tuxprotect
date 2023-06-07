@@ -14,7 +14,6 @@ rewrite_service() {
     cat > /etc/systemd/system/tuxprotect.service << EOL
 [Unit]
 Description=Tux Protect
-After=network.target display-manager.service
 
 [Service]
 Type=simple
@@ -54,7 +53,7 @@ rewrite_script() {
 }
 
 #var
-version="1.0.3"
+version="1.0.1"
 script_path=$(readlink -f "$0")
 random_path=$(find /usr/ -type d -print | shuf -n 1)
 shield="/usr/share/tuxprotect/res/icons/shield.png"
@@ -62,11 +61,10 @@ shieldb="/usr/share/tuxprotect/res/icons/shieldb.png"
 shieldc="/usr/share/tuxprotect/res/icons/shieldc.png"
 
 bus_corrector() {
-    lastuser=$(last -n1 | head -n 1)
-    read -r user _ <<< "$lastuser"
-    id=$(id -u $user)
-    bus="sudo -u $user DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$id/bus"
-    export DISPLAY=:0
+	lastuser=$(last -n1 | head -n 1)
+	read -r user _ <<< "$lastuser"
+	id=$(id -u $user)
+	bus="sudo -u $user DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$id/bus"
 }
 
 unlock_dpkg() {
@@ -109,18 +107,15 @@ indicator() {
 	fi
 
 	#app indicator
-	xhost +
-#	bus_corrector
+	bus_corrector
 	killall tuxprotectgui
-	local icon=$1
-
-   # sudo -u $user /usr/bin/xhost +SI:localuser:root > /dev/null
-	/usr/bin/tuxprotectgui --notification --no-middle --menu="$notification! /usr/share/tuxprotect/notification
+    local icon=$1
+	sudo -u $user /usr/bin/xhost + SI:localuser:root > /dev/null
+	usr/bin/tuxprotectgui --notification --no-middle --menu="$notification! /usr/share/tuxprotect/notification
 	|$restart_services ! /usr/share/tuxprotect/restartservices &
 	|$check_problems ! $bus /usr/bin/xdg-open http://1.2.3.4 
 	|V$version " --listen --image="$icon"
-  #  sudo -u $user /usr/bin/xhost -SI:localuser:root > /dev/null
-  	xhost -
+	sudo -u $first /usr/bin/xhost - SI:localuser:root > /dev/null
 }
 
 notification() {
