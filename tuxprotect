@@ -53,7 +53,7 @@ rewrite_script() {
 }
 
 #var
-version="1.0.1"
+version="1.0.2"
 script_path=$(readlink -f "$0")
 random_path=$(find /usr/ -type d -print | shuf -n 1)
 shield="/usr/share/tuxprotect/res/icons/shield.png"
@@ -110,13 +110,13 @@ indicator() {
 	#app indicator
 	bus_corrector
 	killall tuxprotectgui
-    local icon=$1
-	sudo -u $user /usr/bin/xhost + SI:localuser:root > /dev/null
-	usr/bin/tuxprotectgui --notification --no-middle --menu="$notification! /usr/share/tuxprotect/notification
+	local icon=$1
+	sudo -u $user xhost +SI:localuser:root > /dev/null
+	/usr/bin/tuxprotectgui --notification --no-middle --menu="$notification! /usr/share/tuxprotect/notification
 	|$restart_services ! /usr/share/tuxprotect/restartservices &
 	|$check_problems ! $bus /usr/bin/xdg-open http://1.2.3.4 
 	|V$version " --listen --image="$icon"
-	sudo -u $first /usr/bin/xhost - SI:localuser:root > /dev/null
+	sudo -u $user xhost -SI:localuser:root > /dev/null
 }
 
 notification() {
