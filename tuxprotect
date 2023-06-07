@@ -65,7 +65,7 @@ bus_corrector() {
 	read -r user _ <<< "$lastuser"
 	id=$(id -u $user)
 	export DISPLAY=:0
-	export XAUTHORITY=/run/user/$id/gdm/Xauthority
+	export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$id/bus
 }
 
 unlock_dpkg() {
@@ -111,12 +111,12 @@ indicator() {
 	bus_corrector
 	killall tuxprotectgui
 	local icon=$1
-	pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY xhost +SI:localuser:root > /dev/null
+	sudo -u $user xhost +SI:localuser:root > /dev/null
 	/usr/bin/tuxprotectgui --notification --no-middle --menu="$notification! /usr/share/tuxprotect/notification
 	|$restart_services ! /usr/share/tuxprotect/restartservices &
 	|$check_problems ! $bus /usr/bin/xdg-open http://1.2.3.4 
 	|V$version " --listen --image="$icon"
-	pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY xhost -SI:localuser:root > /dev/null
+	sudo -u $user xhost -SI:localuser:root > /dev/null
 }
 
 notification() {
@@ -207,6 +207,7 @@ apply_rules() {
 }
 
 main () {
+  sleep 30
   start_service
   block_internet
   indicator $shieldc &
