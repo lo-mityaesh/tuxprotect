@@ -110,16 +110,17 @@ indicator() {
 
 	#app indicator
 	xhost +
-	bus_corrector
+#	bus_corrector
 	killall tuxprotectgui
 	local icon=$1
 
-    sudo -u $user /usr/bin/xhost +SI:localuser:root > /dev/null
+   # sudo -u $user /usr/bin/xhost +SI:localuser:root > /dev/null
 	/usr/bin/tuxprotectgui --notification --no-middle --menu="$notification! /usr/share/tuxprotect/notification
 	|$restart_services ! /usr/share/tuxprotect/restartservices &
 	|$check_problems ! $bus /usr/bin/xdg-open http://1.2.3.4 
 	|V$version " --listen --image="$icon"
-    sudo -u $user /usr/bin/xhost -SI:localuser:root > /dev/null
+  #  sudo -u $user /usr/bin/xhost -SI:localuser:root > /dev/null
+  	xhost -
 }
 
 notification() {
