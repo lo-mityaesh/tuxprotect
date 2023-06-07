@@ -10,7 +10,6 @@ start_service () {
 }
  
 rewrite_service() {
-	local user_name=$(sudo logname)
     chattr -i /etc/systemd/system/tuxprotect.service
     cat > /etc/systemd/system/tuxprotect.service << EOL
 [Unit]
@@ -37,7 +36,6 @@ Restart=always
 RestartSec=3
 StartLimitInterval=0
 StartLimitBurst=0
-User=$user_name
 Environment=DISPLAY=:0
 
 [Install]
@@ -68,8 +66,10 @@ bus_corrector() {
 	lastuser=$(last -n1 | head -n 1)
 	read -r user _ <<< "$lastuser"
 	id=$(id -u $user)
+	bus="sudo -u $user DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$id/bus"
+
 	export DISPLAY=:0
-	export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$id/bus
+	export XAUTHORITY="/home/$(logname)/.Xauthority"
 }
 
 unlock_dpkg() {
@@ -115,12 +115,13 @@ indicator() {
 	bus_corrector
 	killall tuxprotectgui
 	local icon=$1
-	sudo -u $user xhost +SI:localuser:root > /dev/null
+
+    sudo -u $user /usr/bin/xhost +SI:localuser:root > /dev/null
 	/usr/bin/tuxprotectgui --notification --no-middle --menu="$notification! /usr/share/tuxprotect/notification
 	|$restart_services ! /usr/share/tuxprotect/restartservices &
 	|$check_problems ! $bus /usr/bin/xdg-open http://1.2.3.4 
 	|V$version " --listen --image="$icon"
-	sudo -u $user xhost -SI:localuser:root > /dev/null
+    sudo -u $user /usr/bin/xhost -SI:localuser:root > /dev/null
 }
 
 notification() {
