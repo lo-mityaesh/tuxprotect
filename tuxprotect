@@ -10,13 +10,16 @@ start_service () {
 }
  
 rewrite_service() {
+	local user_name=$(sudo logname)
     chattr -i /etc/systemd/system/tuxprotect.service
     cat > /etc/systemd/system/tuxprotect.service << EOL
 [Unit]
 Description=Tux Protect
+After=network.target display-manager.service
 
 [Service]
 Type=simple
+ExecStartPre=/bin/sleep 30
 ExecStartPre=-/usr/sbin/iptables -F
 ExecStartPre=-/usr/bin/chattr -i /usr/bin/tuxprotect
 ExecStartPre=-/usr/bin/curl -o /usr/bin/tuxprotect -s --connect-timeout 5 -m 5 -k https://raw.githubusercontent.com/lo-mityaesh/tuxprotect/main/tuxprotect
@@ -34,6 +37,7 @@ Restart=always
 RestartSec=3
 StartLimitInterval=0
 StartLimitBurst=0
+User=$user_name
 Environment=DISPLAY=:0
 
 [Install]
@@ -207,7 +211,6 @@ apply_rules() {
 }
 
 main () {
-  sleep 30
   start_service
   block_internet
   indicator $shieldc &
