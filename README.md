@@ -36,4 +36,8 @@ Please use TuxProtect responsibly and ensure that you comply with all applicable
 ## License
 
 This project is licensed under the [GNU General Public License v3](LICENSE). Please see the LICENSE file for more information.
+
+
+## Support Me
+
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J6N3QW7)
